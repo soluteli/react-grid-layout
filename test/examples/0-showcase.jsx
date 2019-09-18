@@ -9,7 +9,8 @@ class ShowcaseLayout extends React.Component {
     rowHeight: 30,
     onLayoutChange: function() {},
     cols: { lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 },
-    initialLayout: generateLayout()
+    initialLayout: generateLayout(),
+    noCollisionAndSort: true
   };
 
   state = {

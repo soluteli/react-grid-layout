@@ -68,6 +68,7 @@ export type Props = {
   isResizable: boolean,
   isDroppable: boolean,
   preventCollision: boolean,
+  noCollisionAndSort: boolean,
   useCSSTransforms: boolean,
   droppingItem: $Shape<LayoutItem>,
 
@@ -250,6 +251,7 @@ export default class ReactGridLayout extends React.Component<Props, State> {
     verticalCompact: true,
     compactType: "vertical",
     preventCollision: false,
+    noCollisionAndSort: false,
     droppingItem: {
       i: "__dropping-elem__",
       h: 1,
@@ -328,7 +330,8 @@ export default class ReactGridLayout extends React.Component<Props, State> {
         newLayoutBase,
         nextProps.children,
         nextProps.cols,
-        compactType(nextProps)
+        compactType(nextProps),
+        nextProps.noCollisionAndSort
       );
 
       return {
@@ -427,13 +430,19 @@ export default class ReactGridLayout extends React.Component<Props, State> {
       isUserAction,
       this.props.preventCollision,
       compactType(this.props),
-      cols
+      cols,
+      this.props.noCollisionAndSort
     );
 
     this.props.onDrag(layout, oldDragItem, l, placeholder, e, node);
 
     this.setState({
-      layout: compact(layout, compactType(this.props), cols),
+      layout: compact(
+        layout,
+        compactType(this.props),
+        cols,
+        this.props.noCollisionAndSort
+      ),
       activeDrag: placeholder
     });
   }
@@ -449,7 +458,7 @@ export default class ReactGridLayout extends React.Component<Props, State> {
   onDragStop(i: string, x: number, y: number, { e, node }: GridDragEvent) {
     const { oldDragItem } = this.state;
     let { layout } = this.state;
-    const { cols, preventCollision } = this.props;
+    const { cols, preventCollision, noCollisionAndSort } = this.props;
     const l = getLayoutItem(layout, i);
     if (!l) return;
 
@@ -463,13 +472,19 @@ export default class ReactGridLayout extends React.Component<Props, State> {
       isUserAction,
       preventCollision,
       compactType(this.props),
-      cols
+      cols,
+      noCollisionAndSort
     );
 
     this.props.onDragStop(layout, oldDragItem, l, null, e, node);
 
     // Set state
-    const newLayout = compact(layout, compactType(this.props), cols);
+    const newLayout = compact(
+      layout,
+      compactType(this.props),
+      cols,
+      noCollisionAndSort
+    );
     const { oldLayout } = this.state;
     this.setState({
       activeDrag: null,
@@ -504,7 +519,7 @@ export default class ReactGridLayout extends React.Component<Props, State> {
 
   onResize(i: string, w: number, h: number, { e, node }: GridResizeEvent) {
     const { layout, oldResizeItem } = this.state;
-    const { cols, preventCollision } = this.props;
+    const { cols, preventCollision, noCollisionAndSort } = this.props;
     const l: ?LayoutItem = getLayoutItem(layout, i);
     if (!l) return;
 
@@ -552,20 +567,30 @@ export default class ReactGridLayout extends React.Component<Props, State> {
 
     // Re-compact the layout and set the drag placeholder.
     this.setState({
-      layout: compact(layout, compactType(this.props), cols),
+      layout: compact(
+        layout,
+        compactType(this.props),
+        cols,
+        noCollisionAndSort
+      ),
       activeDrag: placeholder
     });
   }
 
   onResizeStop(i: string, w: number, h: number, { e, node }: GridResizeEvent) {
     const { layout, oldResizeItem } = this.state;
-    const { cols } = this.props;
+    const { cols, noCollisionAndSort } = this.props;
     var l = getLayoutItem(layout, i);
 
     this.props.onResizeStop(layout, oldResizeItem, l, null, e, node);
 
     // Set state
-    const newLayout = compact(layout, compactType(this.props), cols);
+    const newLayout = compact(
+      layout,
+      compactType(this.props),
+      cols,
+      noCollisionAndSort
+    );
     const { oldLayout } = this.state;
     this.setState({
       activeDrag: null,
@@ -723,14 +748,15 @@ export default class ReactGridLayout extends React.Component<Props, State> {
   };
 
   onDrop = () => {
-    const { droppingItem, cols } = this.props;
+    const { droppingItem, cols, noCollisionAndSort } = this.props;
     const { layout } = this.state;
 
     const { x, y, w, h } = layout.find(l => l.i === droppingItem.i) || {};
     const newLayout = compact(
       layout.filter(l => l.i !== droppingItem.i),
       compactType(this.props),
-      cols
+      cols,
+      noCollisionAndSort
     );
 
     this.setState({

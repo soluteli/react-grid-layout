@@ -1,2 +1,2 @@
-var DevLayout = require("./examples/0-showcase.jsx");
+var DevLayout = require("./examples/16-noCollisionAndSort.jsx");
 require("./test-hook.jsx")(DevLayout);
