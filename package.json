@@ -92,11 +92,11 @@
   "lint-staged": {
     "*.{js,jsx}": [
       "prettier --write",
-      "git add"
+      "git add -f"
     ],
     "*.css": [
       "prettier --write",
-      "git add"
+      "git add -f"
     ]
   }
 }
